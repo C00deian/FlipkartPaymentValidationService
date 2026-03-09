@@ -1,0 +1,33 @@
+# Build artifacts
+target/
+out/
+build/
+
+# Java artifacts
+*.class
+*.jar
+*.war
+
+# Logs
+*.log
+logs/
+
+# Test reports
+TEST*.xml
+
+# Local environment files
+.env
+.env.*
+
+# IDE/editor files
+.idea/
+*.iml
+.vscode/
+.classpath
+.factorypath
+.project
+.settings/
+
+# OS generated files
+.DS_Store
+Thumbs.db
