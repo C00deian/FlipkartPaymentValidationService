@@ -14,5 +14,6 @@ public class ErrorResponseDto {
     private String errorCode;
     private String path;
     private LocalDateTime timestamp;
+    private String details;
 
 }

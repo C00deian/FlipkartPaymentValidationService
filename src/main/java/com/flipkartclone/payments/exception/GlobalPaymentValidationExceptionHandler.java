@@ -17,14 +17,38 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalPaymentValidationExceptionHandler {
 
-    private ErrorResponseDto buildError(String message, String errorCode, HttpServletRequest request) {
+    private ErrorResponseDto buildError(String message, String errorCode, String details, HttpServletRequest request) {
         return ErrorResponseDto.builder()
                 .message(message)
                 .errorCode(errorCode)
                 .service(Constant.SERVICE_NAME)
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now())
+                .details(details)
                 .build();
+    }
+
+    @ExceptionHandler(PaymentValidationException.class)
+    public ResponseEntity<ErrorResponseDto> handlePaymentValidationException(
+            PaymentValidationException ex,
+            HttpServletRequest request) {
+
+        ErrorCode errorCodeEnum = ex.getErrorCode();
+        ErrorResponseDto errorResponse = buildError(
+                errorCodeEnum.getErrorMessage(),
+                String.valueOf(errorCodeEnum.getErrorCode()),
+                ex.getDetails(),
+                request
+        );
+
+        log.error("Business validation failed | message: {} | errorCode: {} | details: {}",
+                errorCodeEnum.getErrorMessage(),
+                errorCodeEnum.getErrorCode(),
+                ex.getDetails());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -36,23 +60,43 @@ public class GlobalPaymentValidationExceptionHandler {
                 .getFieldErrors()
                 .getFirst();
 
-        String enumKey = fieldError.getDefaultMessage();
+        String enumKey = fieldError != null ? fieldError.getDefaultMessage() : null;
 
-        ErrorCode errorCodeEnum = ErrorCode.valueOf(enumKey);
-        String errorMessage = errorCodeEnum.getErrorMessage();
+        ErrorCode errorCodeEnum;
+        try {
+            errorCodeEnum = ErrorCode.valueOf(enumKey);
+        } catch (Exception ignored) {
+            errorCodeEnum = ErrorCode.GENERIC_ERROR_CODE;
+        }
 
         ErrorResponseDto errorResponse = buildError(
-                errorMessage,
+                errorCodeEnum.getErrorMessage(),
                 String.valueOf(errorCodeEnum.getErrorCode()),
+                enumKey,
                 request
         );
 
-        log.error("Validation failed | message: {} | errorCode: {}",
-                errorMessage,
-                errorCodeEnum.getErrorCode());
+        log.error("Jakarta validation failed | message: {} | errorCode: {} | key: {}",
+                errorCodeEnum.getErrorMessage(),
+                errorCodeEnum.getErrorCode(),
+                enumKey);
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)
                 .body(errorResponse);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<ErrorResponseDto> handleUnhandledException(
+            Exception ex,
+            HttpServletRequest request) {
+        ErrorResponseDto errorResponse = buildError(
+                ErrorCode.GENERIC_ERROR_CODE.getErrorMessage(),
+                String.valueOf(ErrorCode.GENERIC_ERROR_CODE.getErrorCode()),
+                ex.getMessage(),
+                request
+        );
+        log.error("Unhandled exception in payment validation flow", ex);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }

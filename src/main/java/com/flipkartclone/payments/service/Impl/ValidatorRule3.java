@@ -1,5 +1,7 @@
 package com.flipkartclone.payments.service.Impl;
 
+import com.flipkartclone.payments.exception.ErrorCode;
+import com.flipkartclone.payments.exception.PaymentValidationException;
 import com.flipkartclone.payments.pojo.CreatePaymentRequest;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +18,10 @@ public class ValidatorRule3 implements BusinessValidator {
         String lastName = request.getUser().getLastname();
         if (lastName.contains("world")) {
             log.error("ValidatorRule3: Invalid lastName format: {}", lastName);
-            throw new RuntimeException("Invalid lastName format");
+            throw new PaymentValidationException(ErrorCode.VALIDATOR_RULE3_FAILED,
+                    "Invalid lastname format for lastname=" + lastName);
         }
         log.info("ValidatorRule3: validation passed for lastName: {}", lastName);
     }
 
 }
-

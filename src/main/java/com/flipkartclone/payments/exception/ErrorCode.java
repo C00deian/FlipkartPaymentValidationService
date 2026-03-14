@@ -4,6 +4,7 @@ import lombok.Getter;
 @Getter
 public enum ErrorCode {
 
+    GENERIC_ERROR_CODE(10000, "An Unexpected Error Occurred while processing the payment request. Please try again later."),
     SUCCESS_URL_MISSING(10001, "success URL is missing."),
     SUCCESS_URL_TOO_LONG(10002, "success URL cannot exceed 500 characters"),
     SUCCESS_URL_INVALID(10003, "success URL must be a valid http or https URL"),
@@ -17,6 +18,7 @@ public enum ErrorCode {
     LINE_ITEMS_LIMIT_EXCEEDED(10009, "Maximum 50 lineItems allowed"),
 
     PRODUCT_NAME_MISSING(10010, "lineItem name is required"),
+    PRODUCT_NAME_TOO_LONG(10034, "lineItem name cannot exceed 200 characters"),
 
     QUANTITY_REQUIRED(10011, "lineItem quantity is required"),
     QUANTITY_INVALID(10012, "lineItem quantity must be at least 1"),
@@ -51,7 +53,11 @@ public enum ErrorCode {
 
     PAYMENT_METHOD_REQUIRED(10031, "paymentMethod is required"),
     PROVIDER_REQUIRED(10032, "provider is required"),
-    PAYMENT_TYPE_REQUIRED(10033, "paymentType is required");
+    PAYMENT_TYPE_REQUIRED(10033, "paymentType is required"),
+
+    VALIDATOR_RULE1_FAILED(10035, "Rule1 business validation failed"),
+    VALIDATOR_RULE2_FAILED(10036, "Rule2 business validation failed"),
+    VALIDATOR_RULE3_FAILED(10037, "Rule3 business validation failed");
 
     private final Integer errorCode;
     private final String errorMessage;
