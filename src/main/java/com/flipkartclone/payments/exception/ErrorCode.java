@@ -25,7 +25,33 @@ public enum ErrorCode {
     UNIT_AMOUNT_INVALID(10014, "lineItem price must be greater than 0"),
 
     CURRENCY_REQUIRED(10015, "currency is required"),
-    CURRENCY_INVALID(10016, "currency must be a 3-letter ISO code");
+    CURRENCY_INVALID(10016, "currency must be a 3-letter ISO code"),
+
+    // ---------------- NEW USER VALIDATIONS ----------------
+
+    USER_ID_REQUIRED(10017, "endUserID is required"),
+    FIRST_NAME_REQUIRED(10018, "firstname is required"),
+    LAST_NAME_REQUIRED(10019, "lastname is required"),
+    EMAIL_REQUIRED(10020, "email is required"),
+    EMAIL_INVALID(10021, "email must be valid"),
+    MOBILE_PHONE_REQUIRED(10022, "mobilePhone is required"),
+    MOBILE_PHONE_INVALID(10023, "mobilePhone format is invalid"),
+
+    // ---------------- NEW PAYMENT VALIDATIONS ----------------
+
+    AMOUNT_REQUIRED(10024, "amount is required"),
+    AMOUNT_INVALID(10025, "amount must be greater than 0"),
+
+    BRAND_NAME_REQUIRED(10026, "brandName is required"),
+    LOCALE_REQUIRED(10027, "locale is required"),
+    COUNTRY_REQUIRED(10028, "country is required"),
+
+    MERCHANT_TXN_REF_REQUIRED(10029, "merchantTxnRef is required"),
+    MERCHANT_TXN_REF_TOO_LONG(10030, "merchantTxnRef cannot exceed 100 characters"),
+
+    PAYMENT_METHOD_REQUIRED(10031, "paymentMethod is required"),
+    PROVIDER_REQUIRED(10032, "provider is required"),
+    PAYMENT_TYPE_REQUIRED(10033, "paymentType is required");
 
     private final Integer errorCode;
     private final String errorMessage;

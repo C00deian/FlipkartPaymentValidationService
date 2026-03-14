@@ -1,9 +1,9 @@
-package com.flipkartclone.payments.service;
+package com.flipkartclone.payments.service.interfaces;
 
 import com.flipkartclone.payments.pojo.CreatePaymentRequest;
 import org.springframework.stereotype.Service;
 
 @Service
 public interface PaymentValidationService {
-     public void validatePayment(CreatePaymentRequest req);
+      String validateAndCreatePayment(CreatePaymentRequest req);
 }

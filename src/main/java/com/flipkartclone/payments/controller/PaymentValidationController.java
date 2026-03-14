@@ -1,7 +1,7 @@
 package com.flipkartclone.payments.controller;
 
 import com.flipkartclone.payments.pojo.CreatePaymentRequest;
-import com.flipkartclone.payments.service.PaymentValidationImpl;
+import com.flipkartclone.payments.service.Impl.PaymentValidationImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +20,10 @@ public class PaymentValidationController {
     public ResponseEntity<?> createPayment(@Valid @RequestBody CreatePaymentRequest req) {
         // If we reach here, validation PASSED ✅
         log.info("Payment validation request received");
-        log.info("Validating payment request for successUrl: {}", req.getSuccessUrl());
+        log.info("Validating payment request for userId : {}" , req.getUser().getEndUserID());
+        log.info("Validating payment request for successUrl: {}" , req.getPayment().getSuccessUrl());
 
-        paymentValidationImpl.validatePayment(req);
+        paymentValidationImpl.validateAndCreatePayment(req);
 
         log.info("Payment validation successful");
         return ResponseEntity.ok("Payment request valid");
