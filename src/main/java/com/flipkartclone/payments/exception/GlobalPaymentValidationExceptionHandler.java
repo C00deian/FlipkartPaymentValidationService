@@ -6,12 +6,12 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 @Slf4j
 @RestControllerAdvice
@@ -32,21 +32,24 @@ public class GlobalPaymentValidationExceptionHandler {
             MethodArgumentNotValidException ex,
             HttpServletRequest request) {
 
-        String errorMessage = ex.getBindingResult()
+        FieldError fieldError = ex.getBindingResult()
                 .getFieldErrors()
-                .stream()
-                .map(err -> err.getField() + " : " + err.getDefaultMessage())
-                .collect(Collectors.joining(", "));
+                .getFirst();
+
+        String enumKey = fieldError.getDefaultMessage();
+
+        ErrorCode errorCodeEnum = ErrorCode.valueOf(enumKey);
+        String errorMessage = errorCodeEnum.getErrorMessage();
 
         ErrorResponseDto errorResponse = buildError(
                 errorMessage,
-                ErrorCode.INVALID_REQUEST.getErrorCode(),
+                String.valueOf(errorCodeEnum.getErrorCode()),
                 request
         );
 
         log.error("Validation failed | message: {} | errorCode: {}",
                 errorMessage,
-                ErrorCode.INVALID_REQUEST.getErrorCode());
+                errorCodeEnum.getErrorCode());
 
         return ResponseEntity
                 .status(HttpStatus.BAD_REQUEST)

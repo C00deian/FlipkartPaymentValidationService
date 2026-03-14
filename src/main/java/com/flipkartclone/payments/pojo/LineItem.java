@@ -9,19 +9,20 @@ import java.math.BigDecimal;
 @Data
 public class LineItem {
 
-    @NotBlank(message = "lineItem name is required")
+    @NotBlank(message = "PRODUCT_NAME_MISSING")
+    @Size(max = 200, message = "PRODUCT_NAME_TOO_LONG")
     private String productName;
 
-    @NotNull(message = "lineItem quantity is required")
-    @Min(value = 1, message = "lineItem quantity must be at least 1")
+    @NotNull(message = "QUANTITY_REQUIRED")
+    @Min(value = 1, message = "QUANTITY_INVALID")
     private Integer quantity;
 
-    @NotNull(message = "lineItem price is required")
-    @DecimalMin(value = "0.01", message = "lineItem price must be greater than 0")
+    @NotNull(message = "UNIT_AMOUNT_REQUIRED")
+    @DecimalMin(value = "0.01", message = "UNIT_AMOUNT_INVALID")
     private BigDecimal unitAmount;
 
-    @NotBlank(message = "lineItem currency is required")
-    @Size(min = 3, max = 3, message = "currency must be a 3-letter ISO code e.g. INR, USD")
+    @NotBlank(message = "CURRENCY_REQUIRED")
+    @Pattern(regexp = "^[A-Z]{3}$", message = "CURRENCY_INVALID")
     private String currency;
 }
 
