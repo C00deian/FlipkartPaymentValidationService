@@ -50,14 +50,17 @@ public enum ErrorCode {
 
     MERCHANT_TXN_REF_REQUIRED(10029, "merchantTxnRef is required"),
     MERCHANT_TXN_REF_TOO_LONG(10030, "merchantTxnRef cannot exceed 100 characters"),
-
+    DUPLICATE_MERCHANT_TXN_REF(10038, "merchantTxnRef must be unique. Duplicate reference found."),
+    DUPLICATE_TRANSACTION(10040, "Duplicate transaction detected."),
     PAYMENT_METHOD_REQUIRED(10031, "paymentMethod is required"),
     PROVIDER_REQUIRED(10032, "provider is required"),
     PAYMENT_TYPE_REQUIRED(10033, "paymentType is required"),
 
     VALIDATOR_RULE1_FAILED(10035, "Rule1 business validation failed"),
     VALIDATOR_RULE2_FAILED(10036, "Rule2 business validation failed"),
-    VALIDATOR_RULE3_FAILED(10037, "Rule3 business validation failed");
+    VALIDATOR_RULE3_FAILED(10037, "Rule3 business validation failed"),
+    INVALID_API_RESPONSE(100039, "Invalid response received from payment service provider"),
+    FAILED_TO_SAVE_PAYMENT_REQUEST(10041, "Failed to save payment request. Please try again later.");
 
     private final Integer errorCode;
     private final String errorMessage;

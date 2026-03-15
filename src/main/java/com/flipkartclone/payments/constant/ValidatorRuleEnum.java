@@ -1,8 +1,6 @@
 package com.flipkartclone.payments.constant;
 
-import com.flipkartclone.payments.service.Impl.ValidatorRule1;
-import com.flipkartclone.payments.service.Impl.ValidatorRule2;
-import com.flipkartclone.payments.service.Impl.ValidatorRule3;
+import com.flipkartclone.payments.service.Impl.DuplicateTxnValidator;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import lombok.Getter;
 
@@ -11,9 +9,7 @@ import java.util.Arrays;
 @Getter
 public enum ValidatorRuleEnum {
 
-    VALIDATE_RULE1("VALIDATE_RULE1", ValidatorRule1.class),
-    VALIDATE_RULE2("VALIDATE_RULE2", ValidatorRule2.class),
-    VALIDATE_RULE3("VALIDATE_RULE3", ValidatorRule3.class);
+    VALIDATE_RULE1("DUPLICATE_TXN_RULE", DuplicateTxnValidator.class);
 
     private final String ruleName;
     private final Class<? extends BusinessValidator> validatorClass;
