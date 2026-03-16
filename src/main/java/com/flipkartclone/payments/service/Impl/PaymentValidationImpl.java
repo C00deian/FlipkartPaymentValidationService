@@ -2,6 +2,7 @@ package com.flipkartclone.payments.service.Impl;
 
 import com.flipkartclone.payments.constant.ValidatorRuleEnum;
 import com.flipkartclone.payments.pojo.CreatePaymentRequest;
+import com.flipkartclone.payments.service.HmacSha256Service;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import com.flipkartclone.payments.service.interfaces.PaymentValidationService;
 import jakarta.annotation.PostConstruct;
@@ -17,13 +18,20 @@ import org.springframework.stereotype.Service;
 public class PaymentValidationImpl implements PaymentValidationService {
 
     private final ApplicationContext applicationContext;
+    private final HmacSha256Service hmacSha256Service;
+
 
     @Value("${validate-rule-names}")
     String validateRuleNames;
 
     @Override
-    public String validateAndCreatePayment(CreatePaymentRequest req) {
-        log.info("Validating payment request for orderId: {}", "1234");
+    public String validateAndCreatePayment(CreatePaymentRequest req , String headerHmacSignature) {
+
+        log.info("Received paymentRequest : {} and  HmacSignature: {}", req, headerHmacSignature);
+
+        String calculatedHmac = hmacSha256Service.isHmacSignatureValid(req, headerHmacSignature);
+
+        log.info("HMAC validation Passed. Calculated HMAC: {}  headerHmacSignature : {}", calculatedHmac , headerHmacSignature);
 
         String[] ruleNames = validateRuleNames.split(",");
         for (String ruleName : ruleNames) {

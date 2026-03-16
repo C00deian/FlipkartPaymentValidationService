@@ -6,7 +6,6 @@ import com.flipkartclone.payments.pojo.CreatePaymentRequest;
 import com.flipkartclone.payments.entity.MerchantPaymentRequestEntity;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import com.flipkartclone.payments.util.JsonUtil;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +17,7 @@ import org.springframework.stereotype.Service;
 public class DuplicateTxnValidator implements BusinessValidator {
 
     private final MerchantPaymentRequestServiceImpl repository ;
+    private final JsonUtil jsonUtil;
 
     @Override
     public void validate(CreatePaymentRequest request) {
@@ -28,7 +28,7 @@ public class DuplicateTxnValidator implements BusinessValidator {
 
         entity.setEndUserId(request.getUser().getEndUserID());
         entity.setMerchantTxnReference(request.getPayment().getMerchantTxnRef());
-        entity.setTransactionRequest(JsonUtil.convertObjectToJson(request));
+        entity.setTransactionRequest(jsonUtil.convertObjectToJson(request));
 
       int  pkId = repository.save(entity);
       log.info("pkId returned from save operation: {}", pkId);

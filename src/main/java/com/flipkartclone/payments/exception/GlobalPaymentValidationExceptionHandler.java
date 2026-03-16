@@ -47,7 +47,7 @@ public class GlobalPaymentValidationExceptionHandler {
                 ex.getDetails());
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(errorCodeEnum.getHttpStatus())
                 .body(errorResponse);
     }
 

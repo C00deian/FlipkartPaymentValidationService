@@ -4,13 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
+@Component
 @Slf4j
 public class JsonUtil {
 
     private static final ObjectMapper mapper = new ObjectMapper();
 
-    public static <T> T convertJsonToObject(String json, Class<T> clazz) {
+    public  <T> T convertJsonToObject(String json, Class<T> clazz) {
 
         if (json == null || json.isBlank()) {
             log.error("JSON payload is empty for class {}", clazz.getSimpleName());
@@ -35,7 +38,7 @@ public class JsonUtil {
         }
     }
 
-    public static String convertObjectToJson(Object object) {
+    public String convertObjectToJson(Object object) {
 
         if (object == null) {
 

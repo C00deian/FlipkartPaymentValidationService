@@ -1,6 +1,7 @@
 package com.flipkartclone.payments.controller;
 
 import com.flipkartclone.payments.pojo.CreatePaymentRequest;
+import com.flipkartclone.payments.service.HmacSha256Service;
 import com.flipkartclone.payments.service.Impl.PaymentValidationImpl;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,13 +18,18 @@ public class PaymentValidationController {
    private final PaymentValidationImpl paymentValidationImpl;
 
     @PostMapping
-    public ResponseEntity<?> createPayment(@Valid @RequestBody CreatePaymentRequest req) {
+    public ResponseEntity<?> createPayment(
+            @RequestHeader(name = "X-Signature", required = false) String hmacSignature,
+            @Valid @RequestBody CreatePaymentRequest req
+    ) {
+        log.info("Received payment validation request with HmacSignature header -->   PaymentRequest   : {} | HmacSignature : {}", hmacSignature , req);
+
         // If we reach here, validation PASSED ✅
         log.info("Payment validation request received");
         log.info("Validating payment request for userId : {}" , req.getUser().getEndUserID());
         log.info("Validating payment request for successUrl: {}" , req.getPayment().getSuccessUrl());
 
-        paymentValidationImpl.validateAndCreatePayment(req);
+       paymentValidationImpl.validateAndCreatePayment(req , hmacSignature);
 
         log.info("Payment validation successful");
         return ResponseEntity.ok("Payment request valid");
