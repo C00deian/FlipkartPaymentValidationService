@@ -7,6 +7,9 @@ public class Constant {
 
     public static final String SECRET_KEY = "THIS_IS_MY_SECRET";
     public static final String HMAC_SHA256 = "HmacSHA256";
+    public static  final String MERCHANT_ID = "merchant101";
+    public static final String ROLE_MERCHANT = "ROLE_MERCHANT";
+    public static final String HMAC_SIGNATURE = "X-Signature";
 
     // Service Name
     public static final String SERVICE_NAME = "Stripe Provider Service";

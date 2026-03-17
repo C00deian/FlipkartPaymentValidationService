@@ -5,6 +5,7 @@ import com.flipkartclone.payments.pojo.CreatePaymentRequest;
 import com.flipkartclone.payments.service.HmacSha256Service;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import com.flipkartclone.payments.service.interfaces.PaymentValidationService;
+import com.flipkartclone.payments.util.JsonUtil;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,7 @@ public class PaymentValidationImpl implements PaymentValidationService {
 
     private final ApplicationContext applicationContext;
     private final HmacSha256Service hmacSha256Service;
-
+    private final JsonUtil jsonUtil;
 
     @Value("${validate-rule-names}")
     String validateRuleNames;
@@ -29,9 +30,10 @@ public class PaymentValidationImpl implements PaymentValidationService {
 
         log.info("Received paymentRequest : {} and  HmacSignature: {}", req, headerHmacSignature);
 
-        String calculatedHmac = hmacSha256Service.isHmacSignatureValid(req, headerHmacSignature);
+        String jsonPayload = jsonUtil.convertObjectToJson(req);
 
-        log.info("HMAC validation Passed. Calculated HMAC: {}  headerHmacSignature : {}", calculatedHmac , headerHmacSignature);
+       hmacSha256Service.validateHmacSignature(jsonPayload, headerHmacSignature);
+        log.info("HMAC validation Passed.");
 
         String[] ruleNames = validateRuleNames.split(",");
         for (String ruleName : ruleNames) {

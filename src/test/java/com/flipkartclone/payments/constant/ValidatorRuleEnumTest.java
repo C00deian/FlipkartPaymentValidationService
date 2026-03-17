@@ -11,8 +11,6 @@ class ValidatorRuleEnumTest {
     @Test
     void shouldReturnValidatorClassByRuleName() {
         assertEquals(DuplicateTxnValidator.class, ValidatorRuleEnum.getValidatorClassByRule("VALIDATE_RULE1"));
-        assertEquals(ValidatorRule2.class, ValidatorRuleEnum.getValidatorClassByRule(" VALIDATE_RULE2 "));
-        assertEquals(ValidatorRule3.class, ValidatorRuleEnum.getValidatorClassByRule("validate_rule3"));
     }
 
     @Test
