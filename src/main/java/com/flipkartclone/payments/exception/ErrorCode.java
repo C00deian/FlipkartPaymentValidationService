@@ -50,7 +50,8 @@ public enum ErrorCode {
     FAILED_TO_SAVE_PAYMENT_REQUEST(10041, "Failed to save payment request. Please try again later.", HttpStatus.INTERNAL_SERVER_ERROR),
     MISSING_HMAC_SIGNATURE(10042, "Missing HMAC signature in request headers.", HttpStatus.UNAUTHORIZED),
     INVALID_HMAC_SIGNATURE(10043, "Invalid HMAC signature. Authentication failed.", HttpStatus.UNAUTHORIZED),
-    HMAC_COMPUTATION_FAILED(10044, "HMAC Computation failed! Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR);
+    HMAC_COMPUTATION_FAILED(10044, "HMAC Computation failed! Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR),
+    PAYMENT_ATTEMPT_THRESHOLD_EXCEEDED(10045, "Payment attempt threshold exceeded. Please try again later.", HttpStatus.TOO_MANY_REQUESTS);
 
     private final Integer errorCode;
     private final String errorMessage;

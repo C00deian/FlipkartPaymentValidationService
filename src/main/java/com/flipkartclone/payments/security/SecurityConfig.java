@@ -28,12 +28,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
+
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(new ExceptionHandlerFilter(jsonUtil), DisableEncodeUrlFilter.class)
-                .addFilterAfter(new HmacSha256CustomFilter(hmacSha256Service), LogoutFilter.class)
+                       .anyRequest().permitAll()
+               )
+
+            /*   .authorizeHttpRequests(auth -> auth
+                       .anyRequest().authenticated()
+               )
+               .addFilterBefore(new ExceptionHandlerFilter(jsonUtil), DisableEncodeUrlFilter.class)
+               .addFilterAfter(new HmacSha256CustomFilter(hmacSha256Service), LogoutFilter.class)
+
+             */
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );

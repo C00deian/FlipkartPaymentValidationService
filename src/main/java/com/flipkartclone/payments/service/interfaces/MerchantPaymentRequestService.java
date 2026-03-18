@@ -4,5 +4,7 @@ import com.flipkartclone.payments.entity.MerchantPaymentRequestEntity;
 
 public interface MerchantPaymentRequestService {
     int save(MerchantPaymentRequestEntity merchantPaymentRequestEntity);
-}
+    int countRecentRequests(String endUserId, int minutes);
+
+    }
 

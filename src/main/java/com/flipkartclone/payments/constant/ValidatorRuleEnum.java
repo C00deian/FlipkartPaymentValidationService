@@ -1,6 +1,7 @@
 package com.flipkartclone.payments.constant;
 
 import com.flipkartclone.payments.service.Impl.DuplicateTxnValidator;
+import com.flipkartclone.payments.service.Impl.PaymentAttemptThresholdValidator;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import lombok.Getter;
 
@@ -9,7 +10,8 @@ import java.util.Arrays;
 @Getter
 public enum ValidatorRuleEnum {
 
-    VALIDATE_RULE1("DUPLICATE_TXN_RULE", DuplicateTxnValidator.class);
+    VALIDATE_RULE1("DUPLICATE_TXN_RULE", DuplicateTxnValidator.class),
+    PAYMENT_ATTEMPT_THRESHOLD_RULE("PAYMENT_ATTEMPT_THRESHOLD_RULE", PaymentAttemptThresholdValidator.class);
 
     private final String ruleName;
     private final Class<? extends BusinessValidator> validatorClass;

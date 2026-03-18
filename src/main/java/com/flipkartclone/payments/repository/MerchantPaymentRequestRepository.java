@@ -9,8 +9,6 @@ import java.util.Optional;
 @Repository
 public interface MerchantPaymentRequestRepository extends JpaRepository<MerchantPaymentRequestEntity, Integer> {
 
-    Optional<MerchantPaymentRequestEntity> findByMerchantTxnReference(String merchantTxnReference);
 
-    boolean existsByMerchantTxnReference(String merchantTxnReference);
 }
 

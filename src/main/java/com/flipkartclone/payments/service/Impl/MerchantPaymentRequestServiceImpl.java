@@ -14,6 +14,13 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Service;
 
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -36,6 +43,14 @@ public class MerchantPaymentRequestServiceImpl implements MerchantPaymentRequest
                 :transactionRequest
             )
             """;
+
+
+    private static final  String COUNT_MINUTES = """
+                SELECT COUNT(*)
+                FROM validations.merchant_payment_request
+                WHERE endUserID = :endUserId
+                AND creationDate >= :startTime
+                """;
 
     @Override
     public int save(MerchantPaymentRequestEntity request) {
@@ -62,7 +77,7 @@ public class MerchantPaymentRequestServiceImpl implements MerchantPaymentRequest
                 int id = generatedId.intValue();
 
                 log.info("Inserted merchant_payment_request with id: {} for merchantTxnReference: {}",
-                        id,
+                        Optional.of(id),
                         request.getMerchantTxnReference());
 
                 return id;
@@ -81,5 +96,20 @@ public class MerchantPaymentRequestServiceImpl implements MerchantPaymentRequest
 
             return -1;
         }
+    }
+
+
+    public int countRecentRequests(String endUserId, int minutes) {
+
+        // Calculate start time (current time - X minutes)
+        Instant startInstant = Instant.now().minus(minutes, ChronoUnit.MINUTES);
+        Timestamp startTime = Timestamp.from(startInstant);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("endUserId", endUserId);
+        params.put("startTime", startTime);
+
+        Integer count =  jdbcTemplate.queryForObject(COUNT_MINUTES, params, Integer.class);
+        return count == null ? 0 : count;
     }
 }
