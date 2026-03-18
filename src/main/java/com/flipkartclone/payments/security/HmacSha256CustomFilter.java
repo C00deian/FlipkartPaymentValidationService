@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -27,23 +28,29 @@ public class HmacSha256CustomFilter extends OncePerRequestFilter {
 
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
 
-        String signature =  request.getHeader(Constant.HMAC_SIGNATURE);
+        String signature = request.getHeader(Constant.HMAC_SIGNATURE);
+
+        WrappedRequest wrappedRequest = new WrappedRequest(request);
+
+        String rawJsonBody = wrappedRequest.getBody();
+        hmacSha256Service.validateHmacSignature(rawJsonBody, signature);
 
 
-        hmacSha256Service.validateHmacSignature(null, signature);
+        boolean isValid = true;
+       if (isValid) {
 
-        log.info("Our custom HMAC SHA256 filter is processing the request: {}", request.getRequestURI());
+           log.info("Our custom HMAC SHA256 filter is processing the request: {}", request.getRequestURI());
 
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = new HmacAuthenticationToken(Constant.MERCHANT_ID, signature, Constant.ROLE_MERCHANT);
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
+           SecurityContext context = SecurityContextHolder.createEmptyContext();
+           Authentication authentication = new HmacAuthenticationToken(Constant.MERCHANT_ID, signature, Constant.ROLE_MERCHANT);
+           context.setAuthentication(authentication);
+           SecurityContextHolder.setContext(context);
+       }
 
-
-        filterChain.doFilter(request , response);
+        filterChain.doFilter(wrappedRequest , response);
         log.info("Our custom HMAC SHA256 filter has finished processing the request: {}", request.getRequestURI());
     }
 

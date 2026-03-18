@@ -1,9 +1,8 @@
 package com.flipkartclone.payments.service;
 
+import com.flipkartclone.payments.constant.Constant;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
-import com.flipkartclone.payments.pojo.CreatePaymentRequest;
-import com.flipkartclone.payments.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -15,26 +14,28 @@ import java.security.MessageDigest;
 import java.util.Base64;
 
 import static com.flipkartclone.payments.constant.Constant.HMAC_SHA256;
-import static com.flipkartclone.payments.constant.Constant.SECRET_KEY;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class HmacSha256Service {
 
-
     private String generateSignature(String jsonPayload) {
 
         try {
 
+log.info("Generating HMAC signature for payload: {}", jsonPayload);
+
             Mac mac = Mac.getInstance(HMAC_SHA256);
 
             SecretKeySpec secretKey =
-                    new SecretKeySpec(SECRET_KEY.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
+                    new SecretKeySpec(Constant.SECRET_KEY.getBytes(StandardCharsets.UTF_8), HMAC_SHA256);
 
             mac.init(secretKey);
 
             byte[] rawHmac = mac.doFinal(jsonPayload.getBytes(StandardCharsets.UTF_8));
+
+            log.info("Raw hmac :  {}", rawHmac);
 
             return Base64.getEncoder().encodeToString(rawHmac);
 
@@ -63,6 +64,7 @@ public class HmacSha256Service {
 
 
         String calculatedHmac = generateSignature(jsonPayload);
+        log.info("Calculated Hmac: {}", calculatedHmac);
 
         if (!MessageDigest.isEqual(
                 calculatedHmac.getBytes(StandardCharsets.UTF_8),

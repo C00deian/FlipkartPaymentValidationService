@@ -18,20 +18,9 @@ public class PaymentValidationController {
    private final PaymentValidationImpl paymentValidationImpl;
 
     @PostMapping
-    public ResponseEntity<?> createPayment(
-            @RequestHeader(name = Constant.HMAC_SIGNATURE, required = false) String hmacSignature,
-            @Valid @RequestBody CreatePaymentRequest req
-    ) {
-        log.info("Received payment validation request with HmacSignature header -->   PaymentRequest   : {} | HmacSignature : {}", hmacSignature , req);
-
-        // If we reach here, validation PASSED ✅
-        log.info("Payment validation request received");
-        log.info("Validating payment request for userId : {}" , req.getUser().getEndUserID());
-        log.info("Validating payment request for successUrl: {}" , req.getPayment().getSuccessUrl());
-
-       paymentValidationImpl.validateAndCreatePayment(req , hmacSignature);
-
-        log.info("Payment validation successful");
+    public ResponseEntity<?> createPayment(@Valid @RequestBody CreatePaymentRequest req) {
+        // Agar control yahan aaya hai, matlab Filter ne HMAC validate kar liya hai ✅
+        paymentValidationImpl.validateAndCreatePayment(req);
         return ResponseEntity.ok("Payment request valid");
     }
 

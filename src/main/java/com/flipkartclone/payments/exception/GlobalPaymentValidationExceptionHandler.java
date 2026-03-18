@@ -23,7 +23,7 @@ public class GlobalPaymentValidationExceptionHandler {
                 .errorCode(errorCode)
                 .service(Constant.SERVICE_NAME)
                 .path(request.getRequestURI())
-                .timestamp(LocalDateTime.now())
+                .timestamp(LocalDateTime.now().toString())
                 .details(details)
                 .build();
     }
