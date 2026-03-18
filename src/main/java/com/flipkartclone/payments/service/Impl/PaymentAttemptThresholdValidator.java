@@ -1,9 +1,12 @@
 package com.flipkartclone.payments.service.Impl;
 
+import com.flipkartclone.payments.constant.Constant;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
+import com.flipkartclone.payments.model.ValidationContext;
 import com.flipkartclone.payments.pojo.CreatePaymentRequest;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
+import com.flipkartclone.payments.service.interfaces.MerchantPaymentRequestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,14 +16,19 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class PaymentAttemptThresholdValidator implements BusinessValidator {
 
-    private final MerchantPaymentRequestServiceImpl repository;
+    private final MerchantPaymentRequestService merchantPaymentRequestService;
 
     @Override
-    public void validate(CreatePaymentRequest request) {
+    public String getValidatorName() {
+        return Constant.PAYMENT_ATTEMPT_THRESHOLD;
+    }
+
+    @Override
+    public void validate(CreatePaymentRequest request, ValidationContext context) {
         log.info("validating number PaymentReq for PaymentAttemptThreshold: {}", request);
-        int movingWindowMin = 10;
-        int maxAllowedAttempts = 5;
-        int count = repository.countRecentRequests(request.getUser().getEndUserID(), movingWindowMin);
+        int movingWindowMin = context.getRequiredInt(Constant.DURATION_IN_MINS);
+        int maxAllowedAttempts = context.getRequiredInt(Constant.MAX_PAYMENT_THRESHOLD);
+        int count = merchantPaymentRequestService.countRecentRequests(request.getUser().getEndUserID(), movingWindowMin);
         log.info("count of Payments attempts in last {} minutes for user {} is : {}", movingWindowMin, request.getUser().getEndUserID(), count);
 
         if (count <= maxAllowedAttempts) {

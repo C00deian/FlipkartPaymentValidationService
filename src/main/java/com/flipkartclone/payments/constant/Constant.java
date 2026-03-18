@@ -10,6 +10,10 @@ public class Constant {
     public static  final String MERCHANT_ID = "merchant101";
     public static final String ROLE_MERCHANT = "ROLE_MERCHANT";
     public static final String HMAC_SIGNATURE = "X-Signature";
+    public static final String DUPLICATE_TXN = "DUPLICATE_TXN_RULE";
+    public static final String PAYMENT_ATTEMPT_THRESHOLD = "PAYMENT_ATTEMPT_THRESHOLD_RULE";
+    public static final String DURATION_IN_MINS = "durationInMins";
+    public static final String MAX_PAYMENT_THRESHOLD = "maxPaymentThreshold";
 
     // Service Name
     public static final String SERVICE_NAME = "Stripe Provider Service";

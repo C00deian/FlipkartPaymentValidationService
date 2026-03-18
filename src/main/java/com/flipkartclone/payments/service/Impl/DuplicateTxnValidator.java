@@ -1,10 +1,13 @@
 package com.flipkartclone.payments.service.Impl;
 
+import com.flipkartclone.payments.constant.Constant;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
+import com.flipkartclone.payments.model.ValidationContext;
 import com.flipkartclone.payments.pojo.CreatePaymentRequest;
 import com.flipkartclone.payments.entity.MerchantPaymentRequestEntity;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
+import com.flipkartclone.payments.service.interfaces.MerchantPaymentRequestService;
 import com.flipkartclone.payments.util.JsonUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +19,17 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class DuplicateTxnValidator implements BusinessValidator {
 
-    private final MerchantPaymentRequestServiceImpl repository ;
+
+    private final MerchantPaymentRequestService repository;
     private final JsonUtil jsonUtil;
 
     @Override
-    public void validate(CreatePaymentRequest request) {
+    public String getValidatorName() {
+        return Constant.DUPLICATE_TXN;
+    }
+
+    @Override
+    public void validate(CreatePaymentRequest request, ValidationContext context) {
 
         log.info("Validating payment request: {}", request);
 
