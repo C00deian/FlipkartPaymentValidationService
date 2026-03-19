@@ -14,6 +14,10 @@ public class Constant {
     public static final String PAYMENT_ATTEMPT_THRESHOLD = "PAYMENT_ATTEMPT_THRESHOLD_RULE";
     public static final String DURATION_IN_MINS = "durationInMins";
     public static final String MAX_PAYMENT_THRESHOLD = "maxPaymentThreshold";
+//    public static final String VALIDATION_RULES_KEY = "validation-rules";
+    public static final String VALIDATION_RULES_ACTIVE_LIST_KEY = "validations.validation_rules.active.names";
+    public static final String VALIDATION_RULES_PRIORITY_HASH_KEY = "validations.validation_rules.active.priority";
+    public static final String VALIDATION_RULES_PARAMS_HASH_KEY_PREFIX = "validations.validation_rules.active.params:";
 
     // Service Name
     public static final String SERVICE_NAME = "Stripe Provider Service";
