@@ -10,7 +10,8 @@ class ValidatorRuleEnumTest {
 
     @Test
     void shouldReturnValidatorClassByRuleName() {
-        assertEquals(DuplicateTxnValidator.class, ValidatorRuleEnum.getValidatorClassByRule("VALIDATE_RULE1"));
+        assertEquals(DuplicateTxnValidator.class,
+                ValidatorRuleEnum.getValidatorClassByRule("DUPLICATE_TXN_RULE"));
     }
 
     @Test
@@ -19,4 +20,3 @@ class ValidatorRuleEnumTest {
                 () -> ValidatorRuleEnum.getValidatorClassByRule("UNKNOWN_RULE"));
     }
 }
-
