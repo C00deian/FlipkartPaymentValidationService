@@ -43,7 +43,7 @@ public enum ErrorCode {
     PAYMENT_METHOD_REQUIRED(10031, "paymentMethod is required", HttpStatus.BAD_REQUEST),
     PROVIDER_REQUIRED(10032, "provider is required", HttpStatus.BAD_REQUEST),
     PAYMENT_TYPE_REQUIRED(10033, "paymentType is required", HttpStatus.BAD_REQUEST),
-    VALIDATOR_RULE1_FAILED(10035, "Duplicate TXn Validation Failed", HttpStatus.BAD_REQUEST),
+    NO_VALIDATION_RULE_CONFIGURED(10035, "No Validation rule Configured", HttpStatus.INTERNAL_SERVER_ERROR),
     VALIDATOR_RULE2_FAILED(10036, "Rule2 business validation failed", HttpStatus.BAD_REQUEST),
     VALIDATOR_RULE3_FAILED(10037, "Rule3 business validation failed", HttpStatus.BAD_REQUEST),
     INVALID_API_RESPONSE(10039, "Invalid response received from payment service provider", HttpStatus.BAD_GATEWAY),

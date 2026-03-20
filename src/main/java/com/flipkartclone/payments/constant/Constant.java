@@ -10,7 +10,9 @@ public class Constant {
     public static  final String MERCHANT_ID = "merchant101";
     public static final String ROLE_MERCHANT = "ROLE_MERCHANT";
     public static final String HMAC_SIGNATURE = "X-Signature";
-
+    public static final String VALIDATION_RULES_ACTIVE_LIST_KEY = "validation-rules";
+    public static final String VALIDATION_RULES_PRIORITY_HASH_KEY = "validations.validation_rules.active.priority";
+    public static final String VALIDATION_RULES_PARAMS_HASH_KEY_PREFIX = "validations.validation_rules.active.params:";
     // Service Name
     public static final String SERVICE_NAME = "Stripe Provider Service";
 

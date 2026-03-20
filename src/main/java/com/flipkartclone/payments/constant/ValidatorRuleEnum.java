@@ -10,7 +10,7 @@ import java.util.Arrays;
 @Getter
 public enum ValidatorRuleEnum {
 
-    VALIDATE_RULE1("DUPLICATE_TXN_RULE", DuplicateTxnValidator.class),
+    DUPLICATE_TXN_RULE("DUPLICATE_TXN_RULE", DuplicateTxnValidator.class),
     PAYMENT_ATTEMPT_THRESHOLD_RULE("PAYMENT_ATTEMPT_THRESHOLD_RULE", PaymentAttemptThresholdValidator.class);
 
     private final String ruleName;
