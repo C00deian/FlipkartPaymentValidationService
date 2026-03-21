@@ -14,7 +14,7 @@ public class Constant {
     public static final String VALIDATION_RULES_PRIORITY_HASH_KEY = "validations.validation_rules.active.priority";
     public static final String VALIDATION_RULES_PARAMS_HASH_KEY_PREFIX = "validations.validation_rules.active.params:";
     // Service Name
-    public static final String SERVICE_NAME = "Stripe Provider Service";
+    public static final String SERVICE_NAME = "Payment Validation Service";
 
 //    public static final String CREATE_SESSION_MODE = "mode";
 //    public static final String PAYMENT_SUCCESS_URL = "success_url";
