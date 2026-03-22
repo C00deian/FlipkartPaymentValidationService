@@ -1,8 +1,8 @@
 package com.flipkartclone.payments.service.interfaces;
 
-import com.flipkartclone.payments.pojo.CreatePaymentRequest;
+import com.flipkartclone.payments.pojo.PaymentRequest;
 
 
 public interface BusinessValidator {
-    void validate(CreatePaymentRequest request);
+    void validate(PaymentRequest request);
 }

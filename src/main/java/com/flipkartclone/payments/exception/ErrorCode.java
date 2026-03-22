@@ -51,7 +51,10 @@ public enum ErrorCode {
     MISSING_HMAC_SIGNATURE(10042, "Missing HMAC signature in request headers.", HttpStatus.UNAUTHORIZED),
     INVALID_HMAC_SIGNATURE(10043, "Invalid HMAC signature. Authentication failed.", HttpStatus.UNAUTHORIZED),
     HMAC_COMPUTATION_FAILED(10044, "HMAC Computation failed! Something went wrong", HttpStatus.INTERNAL_SERVER_ERROR),
-    PAYMENT_ATTEMPT_THRESHOLD_EXCEEDED(10045, "Payment attempt threshold exceeded. Please try again later.", HttpStatus.TOO_MANY_REQUESTS);
+    PAYMENT_ATTEMPT_THRESHOLD_EXCEEDED(10045, "Payment attempt threshold exceeded. Please try again later.", HttpStatus.TOO_MANY_REQUESTS),
+    NO_VALIDATION_RULES_CONFIGURED(10048, "No validation rules are configured" , HttpStatus.INTERNAL_SERVER_ERROR),
+    ERROR_CONNECTING_TO_EXTERNAL_SERVICE(10049, "Error connecting to external service" , HttpStatus.INTERNAL_SERVER_ERROR),
+    INVALID_STRIPE_PROVIDER_RESPONSE(10050, "Stripe response was empty or missing hosted page URL" , HttpStatus.BAD_GATEWAY);
 
     private final Integer errorCode;
     private final String errorMessage;

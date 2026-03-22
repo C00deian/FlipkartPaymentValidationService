@@ -1,4 +1,4 @@
-package com.flipkartclone.payments.dto;
+package com.flipkartclone.payments.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ErrorResponseDto {
+public class ErrorResponse {
     private String message;
     private String service;
     private String errorCode;

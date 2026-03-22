@@ -1,7 +1,6 @@
 package com.flipkartclone.payments.repository;
 
 import com.flipkartclone.payments.entity.MerchantPaymentRequestEntity;
-import com.flipkartclone.payments.pojo.CreatePaymentRequest;
 
 
 public interface MerchantPaymentRequestRepository {

@@ -3,7 +3,7 @@ package com.flipkartclone.payments.service.Impl;
 import com.flipkartclone.payments.entity.MerchantPaymentRequestEntity;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
-import com.flipkartclone.payments.pojo.CreatePaymentRequest;
+import com.flipkartclone.payments.pojo.PaymentRequest;
 import com.flipkartclone.payments.repository.MerchantPaymentRequestRepository;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import com.flipkartclone.payments.util.JsonUtil;
@@ -21,7 +21,7 @@ public class DuplicateTxnValidator implements BusinessValidator {
     private final JsonUtil jsonUtil;
 
     @Override
-    public void validate(CreatePaymentRequest paymentRequest) {
+    public void validate(PaymentRequest paymentRequest) {
         log.info("Validating payment request: {}", paymentRequest);
 
         MerchantPaymentRequestEntity entity = new MerchantPaymentRequestEntity();

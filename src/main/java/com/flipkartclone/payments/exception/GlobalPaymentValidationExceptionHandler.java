@@ -1,7 +1,7 @@
 package com.flipkartclone.payments.exception;
 
 import com.flipkartclone.payments.constant.Constant;
-import com.flipkartclone.payments.dto.ErrorResponseDto;
+import com.flipkartclone.payments.pojo.ErrorResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,8 +17,8 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalPaymentValidationExceptionHandler {
 
-    private ErrorResponseDto buildError(String message, String errorCode, String details, HttpServletRequest request) {
-        return ErrorResponseDto.builder()
+    private ErrorResponse buildError(String message, String errorCode, String details, HttpServletRequest request) {
+        return ErrorResponse.builder()
                 .message(message)
                 .errorCode(errorCode)
                 .service(Constant.SERVICE_NAME)
@@ -29,30 +29,33 @@ public class GlobalPaymentValidationExceptionHandler {
     }
 
     @ExceptionHandler(PaymentValidationException.class)
-    public ResponseEntity<ErrorResponseDto> handlePaymentValidationException(
+    public ResponseEntity<ErrorResponse> handlePaymentValidationException(
             PaymentValidationException ex,
             HttpServletRequest request) {
 
         ErrorCode errorCodeEnum = ex.getErrorCode();
-        ErrorResponseDto errorResponse = buildError(
-                errorCodeEnum.getErrorMessage(),
+
+        // Logic: Use dynamic message/status if provided, else use Enum defaults
+        String finalMessage = (ex.getDynamicMessage() != null) ? ex.getDynamicMessage() : errorCodeEnum.getErrorMessage();
+        HttpStatus finalStatus = (ex.getDynamicStatus() != null) ? ex.getDynamicStatus() : errorCodeEnum.getHttpStatus();
+
+        ErrorResponse errorResponse = buildError(
+                finalMessage,
                 String.valueOf(errorCodeEnum.getErrorCode()),
                 ex.getDetails(),
                 request
         );
 
-        log.error("Business validation failed | message: {} | errorCode: {} | details: {}",
-                errorCodeEnum.getErrorMessage(),
-                errorCodeEnum.getErrorCode(),
-                ex.getDetails());
+        log.error("Payment Exception | status: {} | message: {} | errorCode: {} | details: {}",
+                finalStatus, finalMessage, errorCodeEnum.getErrorCode(), ex.getDetails());
 
         return ResponseEntity
-                .status(errorCodeEnum.getHttpStatus())
+                .status(finalStatus)
                 .body(errorResponse);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponseDto> handleValidationException(
+    public ResponseEntity<ErrorResponse> handleValidationException(
             MethodArgumentNotValidException ex,
             HttpServletRequest request) {
 
@@ -69,7 +72,7 @@ public class GlobalPaymentValidationExceptionHandler {
             errorCodeEnum = ErrorCode.GENERIC_ERROR_CODE;
         }
 
-        ErrorResponseDto errorResponse = buildError(
+        ErrorResponse errorResponse = buildError(
                 errorCodeEnum.getErrorMessage(),
                 String.valueOf(errorCodeEnum.getErrorCode()),
                 enumKey,
@@ -87,10 +90,10 @@ public class GlobalPaymentValidationExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponseDto> handleUnhandledException(
+    public ResponseEntity<ErrorResponse> handleUnhandledException(
             Exception ex,
             HttpServletRequest request) {
-        ErrorResponseDto errorResponse = buildError(
+        ErrorResponse errorResponse = buildError(
                 ErrorCode.GENERIC_ERROR_CODE.getErrorMessage(),
                 String.valueOf(ErrorCode.GENERIC_ERROR_CODE.getErrorCode()),
                 ex.getMessage(),

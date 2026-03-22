@@ -1,7 +1,7 @@
 package com.flipkartclone.payments.security;
 
 import com.flipkartclone.payments.constant.Constant;
-import com.flipkartclone.payments.dto.ErrorResponseDto;
+import com.flipkartclone.payments.pojo.ErrorResponse;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
 import com.flipkartclone.payments.util.JsonUtil;
@@ -46,7 +46,7 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
                                    String details) throws IOException {
 
         // Build the DTO dynamically from the ErrorCode enum
-        ErrorResponseDto errorDetail = ErrorResponseDto.builder()
+        ErrorResponse errorDetail = ErrorResponse.builder()
                 .message(errorCode.getErrorMessage())
                 .errorCode(String.valueOf(errorCode.getErrorCode()))
                 .service(Constant.SERVICE_NAME)

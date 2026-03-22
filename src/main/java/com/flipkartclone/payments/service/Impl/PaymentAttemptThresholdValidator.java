@@ -6,7 +6,7 @@ import com.flipkartclone.payments.cache.ValidatorRuleCacheRedisV3;
 import com.flipkartclone.payments.constant.ValidatorRuleEnum;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
-import com.flipkartclone.payments.pojo.CreatePaymentRequest;
+import com.flipkartclone.payments.pojo.PaymentRequest;
 import com.flipkartclone.payments.repository.MerchantPaymentRequestRepository;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class PaymentAttemptThresholdValidator implements BusinessValidator {
     private final ValidatorRuleCacheRedisV3 validatorRuleCache;
 
     @Override
-    public void validate(CreatePaymentRequest paymentRequest) {
+    public void validate(PaymentRequest paymentRequest) {
         log.info("Validating payment request for attempt threshold: {}",
                 paymentRequest);
 
