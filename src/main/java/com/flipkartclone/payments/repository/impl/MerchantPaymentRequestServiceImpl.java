@@ -77,8 +77,7 @@ public class MerchantPaymentRequestServiceImpl implements MerchantPaymentRequest
             }
 
             throw new PaymentValidationException(
-                    ErrorCode.FAILED_TO_SAVE_PAYMENT_REQUEST,
-                    "Failed to retrieve generated ID"
+                    ErrorCode.DATABASE_SAVE_FAILED
             );
 
         } catch (DuplicateKeyException ex) {

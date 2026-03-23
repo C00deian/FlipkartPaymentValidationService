@@ -38,20 +38,15 @@ public class HmacSha256CustomFilter extends OncePerRequestFilter {
         String rawJsonBody = wrappedRequest.getBody();
         hmacSha256Service.validateHmacSignature(rawJsonBody, signature);
 
+        log.info("CustomFilter : HMAC-SHA256  is processing the request: {}", request.getRequestURI());
 
-        boolean isValid = true;
-       if (isValid) {
-
-           log.info("Our custom HMAC SHA256 filter is processing the request: {}", request.getRequestURI());
-
-           SecurityContext context = SecurityContextHolder.createEmptyContext();
-           Authentication authentication = new HmacAuthenticationToken(Constant.MERCHANT_ID, signature, Constant.ROLE_MERCHANT);
-           context.setAuthentication(authentication);
-           SecurityContextHolder.setContext(context);
-       }
+        SecurityContext context = SecurityContextHolder.createEmptyContext();
+        Authentication authentication = new HmacAuthenticationToken(Constant.MERCHANT_ID, signature, Constant.ROLE_MERCHANT);
+        context.setAuthentication(authentication);
+        SecurityContextHolder.setContext(context);
 
         filterChain.doFilter(wrappedRequest , response);
-        log.info("Our custom HMAC SHA256 filter has finished processing the request: {}", request.getRequestURI());
+        log.info("CustomFilter : HMAC-SHA256 SHA256 filter has finished processing the request: {}", request.getRequestURI());
     }
 
 }

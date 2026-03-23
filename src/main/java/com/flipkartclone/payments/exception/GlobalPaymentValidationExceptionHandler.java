@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalPaymentValidationExceptionHandler {
 
+    // Helper method to build a consistent response
     private ErrorResponse buildError(String message, String errorCode, String details, HttpServletRequest request) {
         return ErrorResponse.builder()
                 .message(message)
@@ -28,31 +29,32 @@ public class GlobalPaymentValidationExceptionHandler {
                 .build();
     }
 
+    // 1. Handle Custom Payment Exceptions (Internal + Provider Errors)
     @ExceptionHandler(PaymentValidationException.class)
     public ResponseEntity<ErrorResponse> handlePaymentValidationException(
             PaymentValidationException ex,
             HttpServletRequest request) {
 
-        ErrorCode errorCodeEnum = ex.getErrorCode();
+        ErrorCode errorEnum = ex.getError();
 
-        // Logic: Use dynamic message/status if provided, else use Enum defaults
-        String finalMessage = (ex.getDynamicMessage() != null) ? ex.getDynamicMessage() : errorCodeEnum.getErrorMessage();
-        HttpStatus finalStatus = (ex.getDynamicStatus() != null) ? ex.getDynamicStatus() : errorCodeEnum.getHttpStatus();
+        // Priority: CustomMessage > EnumMessage
+        String finalMessage = (ex.getCustomMessage() != null) ? ex.getCustomMessage() : errorEnum.getMessage();
+        // Priority: CustomStatus > EnumStatus
+        HttpStatus finalStatus = (ex.getCustomStatus() != null) ? ex.getCustomStatus() : errorEnum.getHttpStatus();
 
         ErrorResponse errorResponse = buildError(
                 finalMessage,
-                String.valueOf(errorCodeEnum.getErrorCode()),
-                ex.getDetails(),
+                String.valueOf(errorEnum.getCode()),
+                "Payment validation failed",
                 request
         );
 
-        log.error("Payment Exception | status: {} | message: {} | errorCode: {} | details: {}",
-                finalStatus, finalMessage, errorCodeEnum.getErrorCode(), ex.getDetails());
+        log.error("Payment Exception | Status: {} | Code: {} | Msg: {}",
+                finalStatus, errorEnum.getCode(), finalMessage);
 
-        return ResponseEntity
-                .status(finalStatus)
-                .body(errorResponse);
+        return ResponseEntity.status(finalStatus).body(errorResponse);
     }
+
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(
@@ -73,33 +75,33 @@ public class GlobalPaymentValidationExceptionHandler {
         }
 
         ErrorResponse errorResponse = buildError(
-                errorCodeEnum.getErrorMessage(),
-                String.valueOf(errorCodeEnum.getErrorCode()),
+                errorCodeEnum.getMessage(),
+                String.valueOf(errorCodeEnum.getCode()),
                 enumKey,
                 request
         );
 
         log.error("Jakarta validation failed | message: {} | errorCode: {} | key: {}",
-                errorCodeEnum.getErrorMessage(),
-                errorCodeEnum.getErrorCode(),
+                errorCodeEnum.getMessage(),
+                errorCodeEnum.getCode(),
                 enumKey);
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(errorResponse);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
+    // 3. Catch-all for any other unhandled exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleUnhandledException(
             Exception ex,
             HttpServletRequest request) {
         ErrorResponse errorResponse = buildError(
-                ErrorCode.GENERIC_ERROR_CODE.getErrorMessage(),
-                String.valueOf(ErrorCode.GENERIC_ERROR_CODE.getErrorCode()),
+                ErrorCode.GENERIC_ERROR_CODE.getMessage(),
+                String.valueOf(ErrorCode.GENERIC_ERROR_CODE.getCode()),
                 ex.getMessage(),
                 request
         );
-        log.error("Unhandled exception in payment validation flow", ex);
+
+        log.error("Unhandled Exception caught in Payment Service", ex);
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
 }

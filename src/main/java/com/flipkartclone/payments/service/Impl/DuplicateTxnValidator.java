@@ -22,7 +22,6 @@ public class DuplicateTxnValidator implements BusinessValidator {
 
     @Override
     public void validate(PaymentRequest paymentRequest) {
-        log.info("Validating payment request: {}", paymentRequest);
 
         MerchantPaymentRequestEntity entity = new MerchantPaymentRequestEntity();
         entity.setEndUserId(paymentRequest.getUser().getEndUserID());
@@ -31,24 +30,17 @@ public class DuplicateTxnValidator implements BusinessValidator {
 
         //int pkId = new Random().nextInt(100);
         int pkId = repository.saveMerchantPaymentRequest(entity); //TODO for testing spring security, we commented temporary.
-        //should not be commit to feature branch aswell..
-
-
-        log.info("Repository returned primary key id: {}", pkId);
 
         if(pkId == -1) {// duplicate transaction detected
             log.error("Failed to save merchant payment request, possible duplicate transaction. Payment request: {}", paymentRequest);
 
             throw new PaymentValidationException(
-                    ErrorCode.DUPLICATE_TRANSACTION,
-                    ErrorCode.DUPLICATE_TRANSACTION.getErrorMessage()
-                 );
+                    ErrorCode.DUPLICATE_TRANSACTION);
         }
 
 
         log.info("Payment request is valid, "
-                + "no duplicate transaction detected. "
-                + "Payment request: {}", paymentRequest);
+                + "no duplicate transaction detected. ");
     }
 
 }

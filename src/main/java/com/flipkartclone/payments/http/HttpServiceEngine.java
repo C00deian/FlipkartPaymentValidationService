@@ -39,8 +39,8 @@ public class HttpServiceEngine {
 					.retrieve()
 					.toEntity(String.class);
 
-			log.info("HTTP call completed. Status code: {}, Response body: {}", 
-					httpResponse.getStatusCode(), httpResponse.getBody());
+			log.info("HTTP call completed. Status code: {}",
+					httpResponse.getStatusCode());
 
 			return httpResponse;
 		} catch (HttpClientErrorException | HttpServerErrorException ex) {
@@ -54,13 +54,11 @@ public class HttpServiceEngine {
 					ex.getStatusCode() == HttpStatus.GATEWAY_TIMEOUT) {
 				log.error("Stripe service is unavailable. Status code: {}, Response body: {}", 
 						ex.getStatusCode(), ex.getResponseBodyAsString());
-				
-				throw new PaymentValidationException(
-						ErrorCode.ERROR_CONNECTING_TO_EXTERNAL_SERVICE,
-						ErrorCode.ERROR_CONNECTING_TO_EXTERNAL_SERVICE.getErrorMessage());
+
+				throw new PaymentValidationException(ErrorCode.EXTERNAL_SERVICE_CONNECTION_ERROR);
 			}
-			
-			
+
+
 			// prepare ResponseEntity with error details from the exception and return to the caller.
 
             return ResponseEntity
@@ -70,10 +68,9 @@ public class HttpServiceEngine {
 			// when you are not able to get http response from stripe. Network error, timeout, DNS failure, etc.
 			
 			log.error("Error occurred while making HTTP call: ", ex);
-			
-			throw new PaymentValidationException(
-					ErrorCode.ERROR_CONNECTING_TO_EXTERNAL_SERVICE,
-					ErrorCode.ERROR_CONNECTING_TO_EXTERNAL_SERVICE.getErrorMessage());
+
+			throw new PaymentValidationException(ErrorCode.EXTERNAL_SERVICE_CONNECTION_ERROR);
+
 		}
 	}
 	
@@ -81,9 +78,8 @@ public class HttpServiceEngine {
 			HttpRequest httpRequest, Throwable t) {
 		// Handle fallback logic here
 		log.error("Fallback method called due to: {}", t.getMessage(), t);
-		throw new PaymentValidationException(
-				ErrorCode.ERROR_CONNECTING_TO_EXTERNAL_SERVICE,
-				ErrorCode.ERROR_CONNECTING_TO_EXTERNAL_SERVICE.getErrorMessage());
+		throw new PaymentValidationException(ErrorCode.EXTERNAL_SERVICE_CONNECTION_ERROR);
+
 	}
 
 

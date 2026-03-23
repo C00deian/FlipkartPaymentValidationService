@@ -26,8 +26,6 @@ public class PaymentAttemptThresholdValidator implements BusinessValidator {
 
     @Override
     public void validate(PaymentRequest paymentRequest) {
-        log.info("Validating payment request for attempt threshold: {}",
-                paymentRequest);
 
         Map<String, String> paramsMap = validatorRuleCache.getValidatorParamsForRule(
                 ValidatorRuleEnum.PAYMENT_ATTEMPT_THRESHOLD_RULE.getRuleName());
@@ -60,9 +58,7 @@ public class PaymentAttemptThresholdValidator implements BusinessValidator {
                 count, maxPaymentThreshold);
 
         throw new PaymentValidationException(
-                ErrorCode.PAYMENT_ATTEMPT_THRESHOLD_EXCEEDED,
-                ErrorCode.PAYMENT_ATTEMPT_THRESHOLD_EXCEEDED.getErrorMessage()
-                );
+                ErrorCode.PAYMENT_ATTEMPT_THRESHOLD_EXCEEDED);
     }
 
 }

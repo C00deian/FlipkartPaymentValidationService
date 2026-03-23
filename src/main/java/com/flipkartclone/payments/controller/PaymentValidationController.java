@@ -3,14 +3,12 @@ package com.flipkartclone.payments.controller;
 import com.flipkartclone.payments.constant.Constant;
 import com.flipkartclone.payments.pojo.PaymentRequest;
 import com.flipkartclone.payments.pojo.PaymentResponse;
-import com.flipkartclone.payments.service.Impl.PaymentValidationImpl;
 import com.flipkartclone.payments.service.interfaces.PaymentValidationService;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,10 +27,10 @@ private final PaymentValidationService paymentValidationService;
 
     @PostMapping
     public PaymentResponse createPayment(@Valid @RequestBody PaymentRequest req) {
-        log.info("Creating payment... paymentRequest: {}", req);
+        log.info("Creating payment... for  userId: {}", req.getUser().getEndUserID());
 
         PaymentResponse serviceResponse =  paymentValidationService.validateAndCreatePayment(req);
-        log.info("Payment created: {}", serviceResponse);
+        log.info("Payment created...  checkout-url prepared for user-id: {}", req.getUser().getEndUserID());
         return serviceResponse;
     }
 

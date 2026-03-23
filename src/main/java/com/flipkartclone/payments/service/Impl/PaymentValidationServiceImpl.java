@@ -23,7 +23,7 @@ import java.util.List;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class PaymentValidationImpl implements PaymentValidationService {
+public class PaymentValidationServiceImpl implements PaymentValidationService {
 
     private final ApplicationContext applicationContext;
     private final ValidatorRuleCacheRedisV3 validatorRuleCache;
@@ -32,8 +32,7 @@ public class PaymentValidationImpl implements PaymentValidationService {
 
     @Override
     public PaymentResponse validateAndCreatePayment(PaymentRequest paymentRequest) {
-        log.info("Validating and creating payment request: {}", paymentRequest);
-
+        log.info("Starting validation and payment creation for user-id : {}", paymentRequest.getUser().getEndUserID());
         // 1. Fetch rules from Cache
         List<String> validatorRules = validatorRuleCache.getValidatorRules();
         log.info("Validator rules from cache: {}", validatorRules);
@@ -42,9 +41,7 @@ public class PaymentValidationImpl implements PaymentValidationService {
         if (validatorRules == null || validatorRules.isEmpty()) {
             log.error("No validator rules configured, skipping validations");
             throw new PaymentValidationException(
-                    ErrorCode.NO_VALIDATION_RULES_CONFIGURED,
-                    ErrorCode.NO_VALIDATION_RULE_CONFIGURED.getErrorMessage()
-            );
+                    ErrorCode.NO_VALIDATION_RULES_CONFIGURED);
         }
 
         for (String ruleName : validatorRules) {
@@ -61,14 +58,13 @@ public class PaymentValidationImpl implements PaymentValidationService {
             validator.validate(paymentRequest);
         }
 
-        log.info("All business validations passed for: {}", paymentRequest);
+        log.info("All business validations passed for user-id: {}", paymentRequest.getUser().getEndUserID());
 
 
         // Code to invoke processing-service to create payment in Stripe
-
         // 4. Create External Request
         HttpRequest httpRequest = stripeProviderHelper.createHttpRequest(paymentRequest);
-        log.info("Prepared HttpRequest for Stripe provider: {}", httpRequest);
+        log.info("Prepared HttpRequest for Stripe provider");
 
         // 5. Make the HTTP Call (Uses Circuit Breaker if configured in Engine)
         ResponseEntity<String> httpResponse = httpServiceEngine.makeHttpCall(httpRequest);
@@ -80,7 +76,6 @@ public class PaymentValidationImpl implements PaymentValidationService {
         PaymentResponse finalResponse = new PaymentResponse();
         finalResponse.setHostedPageUrl(stripeRes.getCheckoutUrl());
 
-        log.info("Payment creation successful. Redirect URL: {}", finalResponse.getHostedPageUrl());
         return finalResponse;
     }
 }

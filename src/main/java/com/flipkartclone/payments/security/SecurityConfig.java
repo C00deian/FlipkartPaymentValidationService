@@ -30,17 +30,17 @@ public class SecurityConfig {
         http
 
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth
-                       .anyRequest().permitAll()
-               )
+//                .authorizeHttpRequests(auth -> auth
+//                       .anyRequest().permitAll()
+//               )
 
-            /*   .authorizeHttpRequests(auth -> auth
+               .authorizeHttpRequests(auth -> auth
                        .anyRequest().authenticated()
                )
                .addFilterBefore(new ExceptionHandlerFilter(jsonUtil), DisableEncodeUrlFilter.class)
                .addFilterAfter(new HmacSha256CustomFilter(hmacSha256Service), LogoutFilter.class)
 
-             */
+
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );

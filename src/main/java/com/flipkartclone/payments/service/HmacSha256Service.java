@@ -24,8 +24,6 @@ public class HmacSha256Service {
 
         try {
 
-log.info("Generating HMAC signature for payload: {}", jsonPayload);
-
             Mac mac = Mac.getInstance(HMAC_SHA256);
 
             SecretKeySpec secretKey =
@@ -35,17 +33,13 @@ log.info("Generating HMAC signature for payload: {}", jsonPayload);
 
             byte[] rawHmac = mac.doFinal(jsonPayload.getBytes(StandardCharsets.UTF_8));
 
-            log.info("Raw hmac :  {}", rawHmac);
-
             return Base64.getEncoder().encodeToString(rawHmac);
 
         } catch (Exception e) {
 
             log.error("HMAC computation failed", e);
-
             throw new PaymentValidationException(
-                    ErrorCode.HMAC_COMPUTATION_FAILED,
-                    ErrorCode.HMAC_COMPUTATION_FAILED.getErrorMessage()
+                    ErrorCode.HMAC_COMPUTATION_FAILED
             );
         }
     }
@@ -55,26 +49,21 @@ log.info("Generating HMAC signature for payload: {}", jsonPayload);
         if (headerHmacSignature == null || headerHmacSignature.isBlank()) {
 
             log.error("Missing HMAC signature in request header");
-
             throw new PaymentValidationException(
-                    ErrorCode.MISSING_HMAC_SIGNATURE,
-                    ErrorCode.MISSING_HMAC_SIGNATURE.getErrorMessage()
+                    ErrorCode.MISSING_HMAC_SIGNATURE
             );
         }
 
 
         String calculatedHmac = generateSignature(jsonPayload);
-        log.info("Calculated Hmac: {}", calculatedHmac);
 
         if (!MessageDigest.isEqual(
                 calculatedHmac.getBytes(StandardCharsets.UTF_8),
                 headerHmacSignature.getBytes(StandardCharsets.UTF_8))) {
 
             log.error("Invalid HMAC signature");
-
             throw new PaymentValidationException(
-                    ErrorCode.INVALID_HMAC_SIGNATURE,
-                    ErrorCode.INVALID_HMAC_SIGNATURE.getErrorMessage()
+                    ErrorCode.INVALID_HMAC_SIGNATURE
             );
         }
     }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class SPErrorResponse {
-    private Error errorCode;
+    private String errorCode;
     private String errorMessage;
 }

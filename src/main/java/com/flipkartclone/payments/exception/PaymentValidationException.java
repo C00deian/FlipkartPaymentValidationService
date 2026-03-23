@@ -5,30 +5,32 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public class PaymentValidationException extends RuntimeException {
-    private final ErrorCode errorCode;
-    private final String details;
-    private final String dynamicMessage; // To capture Stripe's specific message
-    private final HttpStatus dynamicStatus; // To capture Stripe's specific status
 
-    // Standard constructor for your predefined Enums
-    public PaymentValidationException(ErrorCode errorCode) {
-        this(errorCode, null);
+    private final ErrorCode error;
+    private final String customMessage;
+    private final HttpStatus customStatus;
+
+    // 1. Standard Constructor use Enum as it is.
+    public PaymentValidationException(ErrorCode error) {
+        super(error.getMessage());
+        this.error = error;
+        this.customMessage = error.getMessage();
+        this.customStatus = error.getHttpStatus();
     }
 
-    public PaymentValidationException(ErrorCode errorCode, String details) {
-        super(errorCode.getErrorMessage());
-        this.errorCode = errorCode;
-        this.details = details;
-        this.dynamicMessage = null;
-        this.dynamicStatus = null;
-    }
-
-    // Constructor for DYNAMIC errors (External Provider errors)
-    public PaymentValidationException(String dynamicMessage, String details, HttpStatus status) {
+    // 2. Dynamic Message Constructor: Enum + Stripe ka message
+    public PaymentValidationException(ErrorCode error, String dynamicMessage) {
         super(dynamicMessage);
-        this.errorCode = ErrorCode.INVALID_API_RESPONSE; // Use this as the base category
-        this.details = details;
-        this.dynamicMessage = dynamicMessage;
-        this.dynamicStatus = status;
+        this.error = error;
+        this.customMessage = dynamicMessage;
+        this.customStatus = error.getHttpStatus();
+    }
+
+    // 3. Full Dynamic Constructor: Enum + Stripe ka message + Custom Status (e.g., 502 for Stripe failure)
+    public PaymentValidationException(ErrorCode error, String dynamicMessage, HttpStatus dynamicStatus) {
+        super(dynamicMessage);
+        this.error = error;
+        this.customMessage = dynamicMessage;
+        this.customStatus = dynamicStatus;
     }
 }

@@ -24,48 +24,53 @@ public class ExceptionHandlerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    HttpServletResponse response, FilterChain filterChain)
-            throws IOException {
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws IOException {
         try {
-            log.info("ExceptionHandlerFilter: Entering Filter Chain");
             filterChain.doFilter(request, response);
-            log.info("ExceptionHandlerFilter: Filter Chain Processed Successfully");
         } catch (PaymentValidationException ex) {
-            log.error("Filter caught PaymentValidationException: {}", ex.getMessage());
-            sendErrorResponse(response, request, ex.getErrorCode(), ex.getDetails());
+            log.error("Filter caught PaymentValidationException: code={}, msg={}",
+                    ex.getError().getCode(), ex.getMessage());
+
+            // Pass the FULL Exception object to handle dynamic messages/status
+            sendErrorResponse(response, request, ex);
         } catch (Exception ex) {
             log.error("Filter caught Unhandled Exception: ", ex);
-            sendErrorResponse(response, request, ErrorCode.GENERIC_ERROR_CODE, ex.getMessage());
+
+            // For generic exceptions, wrap them in a standard PaymentValidationException
+            sendErrorResponse(response, request, new PaymentValidationException(ErrorCode.GENERIC_ERROR_CODE, ex.getMessage()));
         }
     }
 
-
     private void sendErrorResponse(HttpServletResponse response,
                                    HttpServletRequest request,
-                                   ErrorCode errorCode,
-                                   String details) throws IOException {
+                                   PaymentValidationException ex) throws IOException {
 
-        // Build the DTO dynamically from the ErrorCode enum
+        ErrorCode errorCodeEnum = ex.getError();
+
+        // Build the Response using our logic: Custom Message > Enum Message
         ErrorResponse errorDetail = ErrorResponse.builder()
-                .message(errorCode.getErrorMessage())
-                .errorCode(String.valueOf(errorCode.getErrorCode()))
+                .message(ex.getCustomMessage() != null ? ex.getCustomMessage() : errorCodeEnum.getMessage())
+                .errorCode(String.valueOf(errorCodeEnum.getCode()))
                 .service(Constant.SERVICE_NAME)
                 .path(request.getRequestURI())
                 .timestamp(LocalDateTime.now().toString())
-                .details(details)
+                .details("Security/Filter validation failed")
                 .build();
 
-        // Use the HTTP Status directly from your Enum
-        response.setStatus(errorCode.getHttpStatus().value());
+        // Set Status: Custom Status > Enum Status
+        int status = (ex.getCustomStatus() != null) ? ex.getCustomStatus().value() : errorCodeEnum.getHttpStatus().value();
+
+        response.setStatus(status);
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
         try {
+            // ObjectMapper use karke JSON write karein
             String json = jsonUtil.convertObjectToJson(errorDetail);
             response.getWriter().write(json);
-            log.info("Error response written to body for path: {}", request.getRequestURI());
         } catch (Exception jsonEx) {
-            log.error("CRITICAL: JsonUtil failed even in Filter, sending fallback string", jsonEx);
-            response.getWriter().write("{\"message\":\"" + errorCode.getErrorMessage() + "\"}");
+            log.error("CRITICAL: Serialization failed in Filter", jsonEx);
+            response.getWriter().write("{\"errorCode\":\"1000\",\"message\":\"Internal Server Error\"}");
         } finally {
             response.getWriter().flush();
         }

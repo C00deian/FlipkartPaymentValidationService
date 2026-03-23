@@ -30,7 +30,6 @@ public class StripeProviderHelper {
 	private String createStripeProviderPaymentUrl;
 
 	public HttpRequest createHttpRequest(PaymentRequest paymentRequest) {
-		log.info("Creating HttpRequest from PaymentRequest: {}", paymentRequest);
 
 		SPCreatePaymentReq spReq = new SPCreatePaymentReq();
 		spReq.setSuccessUrl(paymentRequest.getPayment().getSuccessUrl());
@@ -64,48 +63,73 @@ public class StripeProviderHelper {
 	}
 
 	public SPPaymentResponse processResponse(ResponseEntity<String> httpResponse) {
+		HttpStatus status = (HttpStatus) httpResponse.getStatusCode();
+		String body = httpResponse.getBody();
 
-		// 1. HANDLE SUCCESS (2xx)
-		if (httpResponse.getStatusCode().is2xxSuccessful()) {
-			SPPaymentResponse paymentResponse = jsonUtil.convertJsonToObject(
-					httpResponse.getBody(), SPPaymentResponse.class);
+		// 1. Handle SUCCESS (2xx)
+		if (status.is2xxSuccessful()) {
 
-			if (paymentResponse != null && paymentResponse.getCheckoutUrl() != null) {
-				log.info("Stripe API call successful. URL: {}", paymentResponse.getCheckoutUrl());
+			SPPaymentResponse paymentResponse = jsonUtil.convertJsonToObject(body, SPPaymentResponse.class);
+
+			if (paymentResponse != null  && paymentResponse.getCheckoutUrl() != null){
+				log.info("Stripe API call successful. Status: {} | SessionID: {}",
+						status, (paymentResponse.getSessionId() != null ? paymentResponse.getSessionId() : "N/A"));
+
 				return paymentResponse;
 			}
 
-			log.error("Stripe returned 2xx but body is invalid or missing URL: {}", httpResponse.getBody());
-			throw new PaymentValidationException(
-					ErrorCode.INVALID_STRIPE_PROVIDER_RESPONSE,
-					"Stripe response was empty or missing hosted page URL"
+			// Case: 200 OK but body is empty or missing URL (Stripe's fault)
+			log.error("Stripe returned 200 OK but required fields are missing. SessionID: {}, URL Present: {}",
+					(paymentResponse != null ? paymentResponse.getSessionId() : "NULL"),
+					(paymentResponse != null && paymentResponse.getCheckoutUrl() != null));
+
+					throw new PaymentValidationException(
+					ErrorCode.INVALID_PROVIDER_API_RESPONSE
 			);
 		}
 
-		// 2. HANDLE CLIENT/SERVER ERRORS (4xx, 5xx)
-		log.error("Stripe API call failed. Status: {}, Body: {}",
-				httpResponse.getStatusCode(), httpResponse.getBody());
+		// 2. Handle ERRORS (4xx, 5xx)
+		log.error("Stripe API failed. Status: {}, Body: {}", status, body);
 
+		// Try to parse Stripe's specific error JSON
+		SPErrorResponse stripeError = null;
 		try {
-			SPErrorResponse stripeError = jsonUtil.convertJsonToObject(
-					httpResponse.getBody(), SPErrorResponse.class);
-
-			if (stripeError != null) {
-				// Throw dynamic exception with Stripe's specific message and status
-				throw new PaymentValidationException(
-						stripeError.getErrorMessage(),
-						"Stripe-Error-Code: " + stripeError.getErrorCode(),
-						(HttpStatus) httpResponse.getStatusCode()
-				);
-			}
+			stripeError = jsonUtil.convertJsonToObject(body, SPErrorResponse.class);
 		} catch (Exception e) {
-			log.error("Failed to parse Stripe error response as JSON", e);
+			log.warn("Could not parse Stripe error JSON. Raw body: {}", body);
 		}
 
-		// 3. GENERIC FALLBACK (Network issues / Unreadable responses)
+		if (stripeError != null && stripeError.getErrorCode() != null) {
+			// Log raw details for debugging
+			log.error("Stripe Error Details | Code: {} | Message: {}",
+					stripeError.getErrorCode(), stripeError.getErrorMessage());
+
+			// Map Stripe's raw code to OUR standardized internal Enum
+			var internalError = mapStripeToInternal(stripeError.getErrorCode());
+
+			// Throwing with OUR Code but Stripe's specific Message for the user
+			throw new PaymentValidationException(
+					internalError,
+					stripeError.getErrorMessage(),
+					status
+			);
+		}
+
+		// 3. FALLBACK: If no JSON error could be parsed
 		throw new PaymentValidationException(
-				ErrorCode.ERROR_CONNECTING_TO_EXTERNAL_SERVICE,
-				"Unexpected status received: " + httpResponse.getStatusCode()
-		);
+				ErrorCode.GENERIC_ERROR_CODE);
+	}
+
+	// Industry Standard Mapping logic
+	private ErrorCode mapStripeToInternal(String stripeCode) {
+		if (stripeCode == null) return ErrorCode.INVALID_PROVIDER_API_RESPONSE;
+
+		return switch (stripeCode.toLowerCase()) {
+			case "card_declined", "insufficient_funds" -> ErrorCode.PAYMENT_FAILED;
+			case "expired_card" -> ErrorCode.CARD_EXPIRED;
+			case "rate_limit" -> ErrorCode.TOO_MANY_REQUESTS;
+			case "parameter_missing", "invalid_request_error" -> ErrorCode.BAD_REQUEST;
+			default -> ErrorCode.INVALID_STRIPE_RESPONSE;
+		};
 	}
 }
