@@ -6,7 +6,8 @@ import com.flipkartclone.payments.cache.ValidatorRuleCacheRedisV3;
 import com.flipkartclone.payments.constant.ValidatorRuleEnum;
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
-import com.flipkartclone.payments.pojo.PaymentRequest;
+import com.flipkartclone.payments.pojo.Payment;
+
 import com.flipkartclone.payments.repository.MerchantPaymentRequestRepository;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,7 @@ public class PaymentAttemptThresholdValidator implements BusinessValidator {
     private final ValidatorRuleCacheRedisV3 validatorRuleCache;
 
     @Override
-    public void validate(PaymentRequest paymentRequest) {
+    public void validate(Payment paymentRequest) {
 
         Map<String, String> paramsMap = validatorRuleCache.getValidatorParamsForRule(
                 ValidatorRuleEnum.PAYMENT_ATTEMPT_THRESHOLD_RULE.getRuleName());
@@ -38,11 +39,11 @@ public class PaymentAttemptThresholdValidator implements BusinessValidator {
         int maxPaymentThreshold = Integer.parseInt(paramsMap.get("maxPaymentThreshold"));
 
         int count = merchantReqRepo.countRequestsForUserInLastMinutes(
-                paymentRequest.getUser().getEndUserID(),
+                paymentRequest.getEndUserID(),
                 durationInMins);
 
         log.info("Count of payment attempts for user {} in last {} minutes: {}",
-                paymentRequest.getUser().getEndUserID(),
+                paymentRequest.getEndUserID(),
                 durationInMins,
                 count);
 

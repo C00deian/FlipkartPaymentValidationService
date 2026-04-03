@@ -1,11 +1,14 @@
 package com.flipkartclone.payments.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
 
+@Builder
 @Data
 public class Payment {
 
@@ -17,17 +20,18 @@ public class Payment {
     @Min(value = 1, message = "AMOUNT_INVALID")
     private Integer amount;
 
-    @NotBlank(message = "BRAND_NAME_REQUIRED")
-    @Size(max = 200)
-    private String brandName;
+//    @NotBlank(message = "BRAND_NAME_REQUIRED")
+//    @Size(max = 200)
+//    private String brandName;
 
-    @NotBlank(message = "LOCALE_REQUIRED")
-    private String locale;
+//    @NotBlank(message = "LOCALE_REQUIRED")
+//    private String locale;
 
-    @NotBlank(message = "COUNTRY_REQUIRED")
-    @Size(min = 2, max = 2)
-    private String country;
+//    @NotBlank(message = "COUNTRY_REQUIRED")
+//    @Size(min = 2, max = 2)
+//    private String country;
 
+    @JsonProperty("orderId")
     @NotBlank(message = "MERCHANT_TXN_REF_REQUIRED")
     @Size(max = 100, message = "MERCHANT_TXN_REF_TOO_LONG")
     private String merchantTxnRef;
@@ -38,8 +42,13 @@ public class Payment {
     @NotBlank(message = "PROVIDER_REQUIRED")
     private String provider;
 
-    @NotBlank(message = "PAYMENT_TYPE_REQUIRED")
-    private String paymentType;
+    @JsonProperty("userId")
+    @NotBlank(message = "USER_ID_REQUIRED")
+    @Size(max = 100)
+    private String endUserID;
+
+//    @NotBlank(message = "PAYMENT_TYPE_REQUIRED")
+//    private String paymentType;
 
     @NotBlank(message = "SUCCESS_URL_MISSING")
     @Size(max = 500, message = "SUCCESS_URL_TOO_LONG")

@@ -1,9 +1,10 @@
 package com.flipkartclone.payments.controller;
 
 import com.flipkartclone.payments.constant.Constant;
-import com.flipkartclone.payments.pojo.PaymentRequest;
-import com.flipkartclone.payments.pojo.PaymentResponse;
+import com.flipkartclone.payments.pojo.Payment;
+
 import com.flipkartclone.payments.service.interfaces.PaymentValidationService;
+import com.flipkartclone.payments.stripeprovider.SPPaymentResponse;
 import jakarta.annotation.PostConstruct;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -26,11 +27,17 @@ private final PaymentValidationService paymentValidationService;
     private String createStripeProviderPaymentUrl;
 
     @PostMapping
-    public PaymentResponse createPayment(@Valid @RequestBody PaymentRequest req) {
-        log.info("Creating payment... for  userId: {}", req.getUser().getEndUserID());
+    public SPPaymentResponse createPayment(
+            @Valid @RequestBody Payment req,
+            @RequestHeader(value = "X-Signature", required = false) String signature
+    ) {
+        log.info("Creating payment for userId: {}. Signature received: {}",
+                req.getEndUserID(), (signature != null));
 
-        PaymentResponse serviceResponse =  paymentValidationService.validateAndCreatePayment(req);
-        log.info("Payment created...  checkout-url prepared for user-id: {}", req.getUser().getEndUserID());
+        SPPaymentResponse serviceResponse = paymentValidationService.validateAndCreatePayment(req);
+//        log.info("order-service payload received: {}", serviceResponse);
+
+        log.info("Payment created... checkout-url prepared for user-id: {}", req.getEndUserID());
         return serviceResponse;
     }
 

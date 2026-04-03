@@ -6,7 +6,8 @@ import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
 import com.flipkartclone.payments.http.HttpRequest;
 import com.flipkartclone.payments.http.HttpServiceEngine;
-import com.flipkartclone.payments.pojo.PaymentRequest;
+import com.flipkartclone.payments.pojo.Payment;
+
 import com.flipkartclone.payments.pojo.PaymentResponse;
 import com.flipkartclone.payments.service.helper.StripeProviderHelper;
 import com.flipkartclone.payments.service.interfaces.BusinessValidator;
@@ -31,8 +32,8 @@ public class PaymentValidationServiceImpl implements PaymentValidationService {
     private final StripeProviderHelper stripeProviderHelper;
 
     @Override
-    public PaymentResponse validateAndCreatePayment(PaymentRequest paymentRequest) {
-        log.info("Starting validation and payment creation for user-id : {}", paymentRequest.getUser().getEndUserID());
+    public SPPaymentResponse validateAndCreatePayment(Payment paymentRequest) {
+        log.info("Starting validation and payment creation for user-id : {}", paymentRequest .getEndUserID());
         // 1. Fetch rules from Cache
         List<String> validatorRules = validatorRuleCache.getValidatorRules();
         log.info("Validator rules from cache: {}", validatorRules);
@@ -58,7 +59,7 @@ public class PaymentValidationServiceImpl implements PaymentValidationService {
             validator.validate(paymentRequest);
         }
 
-        log.info("All business validations passed for user-id: {}", paymentRequest.getUser().getEndUserID());
+        log.info("All business validations passed for user-id: {}", paymentRequest.getEndUserID());
 
 
         // Code to invoke processing-service to create payment in Stripe
@@ -70,12 +71,7 @@ public class PaymentValidationServiceImpl implements PaymentValidationService {
         ResponseEntity<String> httpResponse = httpServiceEngine.makeHttpCall(httpRequest);
 
         // 6. Process Response (This throws PaymentValidationException on 4xx/5xx)
-        SPPaymentResponse stripeRes = stripeProviderHelper.processResponse(httpResponse);
+        return stripeProviderHelper.processResponse(httpResponse);
 
-        // 7. Map to Final Response
-        PaymentResponse finalResponse = new PaymentResponse();
-        finalResponse.setHostedPageUrl(stripeRes.getCheckoutUrl());
-
-        return finalResponse;
     }
 }

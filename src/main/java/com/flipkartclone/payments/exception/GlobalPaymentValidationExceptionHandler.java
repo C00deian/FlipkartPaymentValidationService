@@ -84,7 +84,7 @@ public class GlobalPaymentValidationExceptionHandler {
         log.error("Jakarta validation failed | message: {} | errorCode: {} | key: {}",
                 errorCodeEnum.getMessage(),
                 errorCodeEnum.getCode(),
-                enumKey);
+                enumKey , ex);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }

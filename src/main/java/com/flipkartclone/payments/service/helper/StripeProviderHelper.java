@@ -5,7 +5,7 @@ import java.util.stream.Collectors;
 
 import com.flipkartclone.payments.exception.ErrorCode;
 import com.flipkartclone.payments.exception.PaymentValidationException;
-import com.flipkartclone.payments.pojo.PaymentRequest;
+import com.flipkartclone.payments.pojo.Payment;
 import com.flipkartclone.payments.stripeprovider.LineItem;
 import com.flipkartclone.payments.stripeprovider.SPCreatePaymentReq;
 import com.flipkartclone.payments.stripeprovider.SPErrorResponse;
@@ -29,38 +29,20 @@ public class StripeProviderHelper {
 	@Value("${stripe.provider.createPaymentUrl}")
 	private String createStripeProviderPaymentUrl;
 
-	public HttpRequest createHttpRequest(PaymentRequest paymentRequest) {
+	public HttpRequest createHttpRequest(Payment paymentRequest) {
+		log.info("Mapping request for provider. OrderId: {}", paymentRequest.getMerchantTxnRef());
 
-		SPCreatePaymentReq spReq = new SPCreatePaymentReq();
-		spReq.setSuccessUrl(paymentRequest.getPayment().getSuccessUrl());
-		spReq.setCancelUrl(paymentRequest.getPayment().getCancelUrl());
+		// 1. lineItem Mapping
+		List<LineItem> spLineItems = mapToProviderLineItems(paymentRequest.getLineItems());
 
-		if (paymentRequest.getPayment().getLineItems() != null
-				&& !paymentRequest.getPayment().getLineItems().isEmpty()) {
-			List<LineItem> spLineItems = paymentRequest.getPayment()
-					.getLineItems()
-					.stream()
-					.map(li -> {
-						LineItem item = new LineItem();
-						item.setCurrency(li.getCurrency());
-						item.setProductName(li.getProductName());
-						item.setUnitAmount(li.getUnitAmount());
-						item.setQuantity(li.getQuantity() == null ? 0 : li.getQuantity());
-						return item;
-					})
-					.collect(Collectors.toList());
+		// 2. prepare Payload for Stripe-provider-service SPCreatePaymentReq
+		SPCreatePaymentReq spReq = buildProviderRequest(paymentRequest, spLineItems);
+		log.info("orderId  {}:" , spReq.getOrderId());
 
-			spReq.setLineItems(spLineItems);
-		}
-
-		HttpRequest httpRequest = new HttpRequest();
-		httpRequest.setHttpHeaders(new HttpHeaders());
-		httpRequest.setHttpMethod(HttpMethod.POST);
-		httpRequest.setUrl(createStripeProviderPaymentUrl);
-		httpRequest.setRequestData(spReq);
-
-		return httpRequest;
+		// 3. final Http request.
+		return buildFinalHttpRequest(spReq);
 	}
+
 
 	public SPPaymentResponse processResponse(ResponseEntity<String> httpResponse) {
 		HttpStatus status = (HttpStatus) httpResponse.getStatusCode();
@@ -80,8 +62,7 @@ public class StripeProviderHelper {
 
 			// Case: 200 OK but body is empty or missing URL (Stripe's fault)
 			log.error("Stripe returned 200 OK but required fields are missing. SessionID: {}, URL Present: {}",
-					(paymentResponse != null ? paymentResponse.getSessionId() : "NULL"),
-					(paymentResponse != null && paymentResponse.getCheckoutUrl() != null));
+					(paymentResponse != null ? paymentResponse.getSessionId() : "NULL"), "No Url Present");
 
 					throw new PaymentValidationException(
 					ErrorCode.INVALID_PROVIDER_API_RESPONSE
@@ -132,4 +113,45 @@ public class StripeProviderHelper {
 			default -> ErrorCode.INVALID_STRIPE_RESPONSE;
 		};
 	}
+
+
+
+	// --- EXTRACTED HELPER METHODS ---
+	private List<LineItem> mapToProviderLineItems(List<com.flipkartclone.payments.pojo.LineItem> sourceItems) {
+		if (sourceItems == null || sourceItems.isEmpty()) {
+			return List.of();
+		}
+
+		return sourceItems.stream()
+				.map(li -> LineItem.builder()
+						.currency(li.getCurrency())
+						.productName(li.getProductName())
+						.unitAmount(li.getUnitAmount())
+						.quantity(li.getQuantity() != null ? li.getQuantity() : 0)
+						.build())
+				.collect(Collectors.toList());
+	}
+
+	private SPCreatePaymentReq buildProviderRequest(Payment payment, List<LineItem> spLineItems) {
+		return SPCreatePaymentReq.builder()
+				.orderId(payment.getMerchantTxnRef())
+				.amount(payment.getAmount())
+				.currency(payment.getCurrency())
+				.merchantTxnRef(payment.getMerchantTxnRef())
+				.userId(payment.getEndUserID())
+				.successUrl(payment.getSuccessUrl())
+				.cancelUrl(payment.getCancelUrl())
+				.lineItems(spLineItems)
+				.build();
+	}
+
+	private HttpRequest buildFinalHttpRequest(SPCreatePaymentReq spReq) {
+		return HttpRequest.builder()
+				.httpHeaders(new HttpHeaders()) // Add custom headers here if needed
+				.httpMethod(HttpMethod.POST)
+				.url(createStripeProviderPaymentUrl)
+				.requestData(spReq)
+				.build();
+	}
+
 }

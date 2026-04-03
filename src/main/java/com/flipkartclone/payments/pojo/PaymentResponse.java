@@ -4,6 +4,5 @@ import lombok.Data;
 
 @Data
 public class PaymentResponse {
-
-	private String hostedPageUrl;
-}
+	private String sessionId;
+	private String checkoutUrl;}
