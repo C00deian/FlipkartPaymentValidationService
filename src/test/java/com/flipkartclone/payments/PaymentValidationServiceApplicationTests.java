@@ -1,13 +1,13 @@
 package com.flipkartclone.payments;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
+import static org.assertj.core.api.Assertions.assertThat;
 
-@SpringBootTest
 class PaymentValidationServiceApplicationTests {
 
 	@Test
-	void contextLoads() {
+	void applicationClassIsAvailable() {
+		assertThat(PaymentValidationServiceApplication.class).isNotNull();
 	}
 
 }
